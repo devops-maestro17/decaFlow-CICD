@@ -40,3 +40,121 @@ A pipeline was developed to perform the following tasks:
 - Containerize the microservices using Docker.
 - Push the images to DockerHub.
 - Deploy the 10-tier application to the EKS cluster.
+
+# Usage
+
+### Creating an IAM user with required permissions
+
+
+
+<img width="698" alt="iam-policies" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/5c25891a-fee8-47fd-bd18-41f2adf42ebd">
+
+
+
+Add above permissions to the IAM user so that it can interact with the EKS cluster
+
+### Configuring EC2 instance and installing required tools
+
+
+Create a `t2.large` EC2 instance with 30GB of EBS volume. Use the below set of commands to setup the required tools
+
+- Install AWS CLI
+  
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+- Install Kubectl for EKS
+
+```
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.3/2023-11-14/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+```
+
+- Install EKS
+
+```
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+```
+
+- Install JDK 17 and Jenkins
+
+```
+sudo apt install fontconfig openjdk-17-jre -y
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins -y
+```
+
+-  Install Docker and add jenkins user to docker group
+
+```
+sudo apt install docker.io -y
+sudo usermod -aG docker jenkins
+sudo systemctl restart docker
+```
+
+- Install SonarQube using a Docker image
+
+```
+docker run -d -p 9000:9000 sonarqube:lts-community
+```
+
+<img width="602" alt="installations-1" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/5df4d48f-6c1e-4a59-a63b-61011c32b026">
+
+<img width="917" alt="jenkins-install" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/c492c208-afb0-4872-81d7-f14b98c9cb82">
+
+<img width="916" alt="docker-sonarqube-install" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/e103270c-e766-4563-9566-d44bacf57d16">
+> Verifying the installations of the required tools
+
+### Connecting the EC2 instance to AWS
+
+The EC2 instance was connected to the AWS using AWS CLI and then using the command `aws configure` to enter the access key ID and secret access key details
+
+### Creating EKS cluster
+
+Create the EKS cluster using the below command:
+
+```
+eksctl create cluster --name=cluster-name \
+		      --region=ap-south-1 \
+		      --zones=ap-south-1a,ap-south-1b \
+		      --without-nodegroup
+
+eksctl utils associate-iam-oidc-provider \
+    --region ap-south-1 \
+    --cluster cluster-name \
+    --approve
+
+eksctl create nodegroup --cluster=cluster-name \
+			--region=ap-south-1 \
+			--name=node2 \
+			--node-type=t3.medium \
+			--nodes=2 \
+			--nodes-min=2 \
+			--nodes-max=3 \
+			--node-volume-size=20 \
+			--ssh-access \
+			--ssh-public-key=pem-file-name \
+			--managed \
+			--asg-access \
+			--external-dns-access \
+			--full-ecr-access \
+			--appmesh-access \
+			--alb-ingress-access
+```
+
+It will create the master and the worker nodes seperately with auto scaling and load balancing enabled
+
+### Jenkins Setup
+- Login into the Jenkins and install all the plugins
+- 
