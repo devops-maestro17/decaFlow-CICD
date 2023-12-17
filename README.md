@@ -114,6 +114,7 @@ docker run -d -p 9000:9000 sonarqube:lts-community
 <img width="917" alt="jenkins-install" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/c492c208-afb0-4872-81d7-f14b98c9cb82">
 
 <img width="916" alt="docker-sonarqube-install" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/e103270c-e766-4563-9566-d44bacf57d16">
+
 > Verifying the installations of the required tools
 
 ### Connecting the EC2 instance to AWS
