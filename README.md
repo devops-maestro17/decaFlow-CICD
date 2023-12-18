@@ -157,5 +157,52 @@ eksctl create nodegroup --cluster=cluster-name \
 It will create the master and the worker nodes seperately with auto scaling and load balancing enabled
 
 ### Jenkins Setup
-- Login into the Jenkins and install all the plugins
-- 
+- Login into the Jenkins
+- Install the plugins related to SonarQube, Docker and Kubernetes
+
+<img width="959" alt="jenkins-plugins" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/fd9c6451-e054-4810-b83e-d99f4a0ecdf9">
+  
+
+- Go to Dashboard > Manage Jenkins > Tools and add SonarQube Scanner and Docker installations
+
+<img width="908" alt="tool-config-1" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/b386df5e-dc6f-417d-b7cf-f4f17571a5d0">
+<img width="873" alt="tool-config-2" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/b9d2efb6-87d6-4eb3-ad62-59e9c7798d7d">
+
+
+- Go to Dashboard > Manage Jenkins > System and setup the SonarQube server with the server URL and the authentication token generated from SonarQube
+
+<img width="912" alt="sonar-server-congif-jenkins" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/3974723b-605d-4de1-a281-ce213369130e">
+
+
+### Modifying the security group in EKS cluster
+Go to the addtional security group inside the EKS cluster and allow `All Traffic` under inbound rules
+<img width="750" alt="eks-SG" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/e2aac07e-691e-4426-9b0f-e076d1c9db90">
+
+
+### Service Account and Role
+In order to allow jenkins user to be able to communicate with the EKS cluster and perform deployments, create a service account and a role with specific access permissions and then bind that service account to the role.
+The service account, role and bind manifest files are located inside `k8s` folder. Apply those files using the `kubectl apply -f <filename>` command.
+
+
+### Creating a secret for the service account
+Create a secret.yaml file for jenkins so that it can authenticate with the cluster. The file can be accessed from the `k8s` folder. Generate the secret by using the following command:
+
+```
+kubectl describe secret mysecretname -n webapps
+```
+
+### Setting up the CI/CD pipeline
+In order to communicate with the DockerHub repository, store the credentials inside jenkins. Similarily, store the secret token for the service account. The Jenkinsfile for the pipeline is present inside the repository. Once the pipeline is passed successfully use `kubectl get pods` and `kubectl get svc` to get the list of running pods and the load balancer IP. Hit the IP in the browser to view the application deployed.
+
+<img width="821" alt="pipeline" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/a15d701b-7790-474a-9179-4361cfc18bf1">
+
+<img width="551" alt="pods" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/88358e26-ac01-4980-9505-29488748f811">
+
+<img width="919" alt="services" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/fdc0a360-e5c6-42d5-94e9-9cd17d6887a2">
+
+<img width="956" alt="app" src="https://github.com/devops-maestro17/decaFlow-CICD/assets/148553140/fa665f28-760b-4289-a840-068e0e0fff22">
+
+
+
+
+
