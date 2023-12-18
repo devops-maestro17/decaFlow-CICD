@@ -1,6 +1,6 @@
-# CI/CD Pipeline for 10-Tier Microservice Application
+# CI/CD Pipeline for 10-Microservice Application
 
-This repository contains the CI/CD pipeline for a 10-tier microservice application. The pipeline is designed to work with Amazon EKS and includes the following steps:
+This repository contains the CI/CD pipeline for an application having 10 different microservices. The pipeline is designed to work with Amazon EKS and includes the following steps:
 
 ## 1. IAM User Setup
 
@@ -39,7 +39,7 @@ A pipeline was developed to perform the following tasks:
 - Perform static code analysis using SonarQube.
 - Containerize the microservices using Docker.
 - Push the images to DockerHub.
-- Deploy the 10-tier application to the EKS cluster.
+- Deploy the application to the EKS cluster.
 
 # Usage
 
